@@ -1,4 +1,5 @@
 /*
+GAS
 Work in Progress : February 27, 2024
 chad.ramey@onepeloton.com 
 Forked from Google Workspace License Notifier by Goldy Arora
