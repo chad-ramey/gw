@@ -1,5 +1,9 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.csv
+service_account_key.json
 .DS_Store
-pwd-dirmanager
-pwd-admin
-id_rsa
-id_rsa_sync_deploy_key

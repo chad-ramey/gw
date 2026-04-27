@@ -23,7 +23,7 @@
 // Adds a custom menu to the Google Sheet upon opening
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
-  ui.createMenu('CollabSys') // Custom menu for Collaboration Systems
+  ui.createMenu('Workspace Admin') // Custom menu for Workspace Admin tools
     .addItem('Get Licenses', 'getLicenses') // Option to fetch licenses
     .addItem('Send Report', 'buildReport') // Option to send a report
     .addToUi();
@@ -181,9 +181,11 @@ function buildAlert(data) {
 
 // Send alert to multiple Slack channels
 function sendAlert(payload) {
+  // Store webhook URLs in Script Properties: File > Project Settings > Script Properties
+  // Key: SLACK_WEBHOOK_1, SLACK_WEBHOOK_2, etc.
   const webhooks = [
-    "https://hooks.slack.com/services/"  // Slack channel webhook
-  ];
+    PropertiesService.getScriptProperties().getProperty('SLACK_WEBHOOK_1'),
+  ].filter(Boolean);
 
   var options = {
     "method": "post", 

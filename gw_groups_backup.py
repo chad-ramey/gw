@@ -19,7 +19,7 @@ Usage:
      - `SERVICE_ACCOUNT_JSON`: Contains the service account credentials in JSON format.
      - `FOLDER_ID`: The ID of the Google Drive folder where the CSV file will be uploaded.
      - `SUPER_ADMIN_EMAIL`: The super admin email address used for domain-wide delegation.
-   - The script writes the `SERVICE_ACCOUNT_JSON` to a file at runtime, which is used to authenticate with the Google APIs.
+   - The `SERVICE_ACCOUNT_JSON` is parsed in-memory — no credentials file is written to disk.
 
 2. **Google Groups Retrieval**:
    - The script retrieves all Google Groups in the domain using the Google Admin SDK Directory API.
@@ -57,10 +57,10 @@ SERVICE_ACCOUNT_JSON = os.environ.get('SERVICE_ACCOUNT_JSON')
 FOLDER_ID = os.environ.get('FOLDER_ID')
 SUPER_ADMIN_EMAIL = os.environ.get('SUPER_ADMIN_EMAIL')
 
-# Write the service account key to a file
-SERVICE_ACCOUNT_FILE = 'service_account_key.json'
-with open(SERVICE_ACCOUNT_FILE, 'w') as f:
-    f.write(SERVICE_ACCOUNT_JSON)
+if not SERVICE_ACCOUNT_JSON or not FOLDER_ID or not SUPER_ADMIN_EMAIL:
+    raise EnvironmentError(
+        "Missing required environment variables: SERVICE_ACCOUNT_JSON, FOLDER_ID, SUPER_ADMIN_EMAIL"
+    )
 
 # Scopes required to list Google Groups and access Google Drive
 SCOPES = [
@@ -68,9 +68,11 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive.file'
 ]
 
-# Create credentials using the service account
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+# Load credentials directly from the JSON string — no temp file written to disk
+import json as _json
+service_account_info = _json.loads(SERVICE_ACCOUNT_JSON)
+credentials = service_account.Credentials.from_service_account_info(
+    service_account_info, scopes=SCOPES)
 
 # Use domain-wide delegation
 delegated_credentials = credentials.with_subject(SUPER_ADMIN_EMAIL)
